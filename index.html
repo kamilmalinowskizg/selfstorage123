@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Storage Konfigurator Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-warehouse"></i>
+                <span>Self-Storage <strong>Konfigurator Pro</strong></span>
+            </div>
+            <nav class="nav-tabs">
+                <button class="nav-tab active" data-tab="config"><i class="fas fa-sliders-h"></i> Konfiguracja</button>
+                <button class="nav-tab" data-tab="plan"><i class="fas fa-drafting-compass"></i> Plan</button>
+                <button class="nav-tab" data-tab="verify"><i class="fas fa-edit"></i> Weryfikacja</button>
+                <button class="nav-tab" data-tab="costs"><i class="fas fa-calculator"></i> Koszty</button>
+                <button class="nav-tab" data-tab="cashflow"><i class="fas fa-chart-line"></i> Cash Flow</button>
+                <button class="nav-tab" data-tab="summary"><i class="fas fa-file-invoice-dollar"></i> Podsumowanie</button>
+            </nav>
+            <div class="header-actions">
+                <button class="btn-icon" id="settingsBtn" title="Ustawienia API"><i class="fas fa-cog"></i></button>
+                <button class="btn-icon" id="exportPdf" title="Eksportuj PDF"><i class="fas fa-file-pdf"></i></button>
+                <button class="btn-icon" id="printBtn" title="Drukuj"><i class="fas fa-print"></i></button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Tab 1: Configuration -->
+            <section class="tab-content active" id="tab-config">
+                <div class="config-grid">
+                    <!-- Hall Dimensions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-ruler-combined"></i> Wymiary Hali</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Kształt hali</label>
+                                <select id="hallShape">
+                                    <option value="rectangle">Prostokąt</option>
+                                    <option value="L-shape">Litera L</option>
+                                    <option value="custom">Własna powierzchnia</option>
+                                </select>
+                            </div>
+                            <div id="rectangleDims">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Długość (m)</label>
+                                        <input type="number" id="hallLength" value="30" min="5" max="200">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Szerokość (m)</label>
+                                        <input type="number" id="hallWidth" value="20" min="5" max="200">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="lShapeDims" style="display:none;">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Ramię A - długość (m)</label>
+                                        <input type="number" id="armALength" value="20" min="5">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Ramię A - szerokość (m)</label>
+                                        <input type="number" id="armAWidth" value="10" min="3">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Ramię B - długość (m)</label>
+                                        <input type="number" id="armBLength" value="15" min="5">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Ramię B - szerokość (m)</label>
+                                        <input type="number" id="armBWidth" value="10" min="3">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="customArea" style="display:none;">
+                                <div class="form-group">
+                                    <label>Powierzchnia całkowita (m²)</label>
+                                    <input type="number" id="totalArea" value="600" min="100">
+                                </div>
+                            </div>
+                            <div class="info-box">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Powierzchnia brutto: <strong id="grossArea">600</strong> m²</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Parameters -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-cog"></i> Parametry Systemu</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Wysokość systemu (mm)</label>
+                                    <input type="number" id="systemHeight" value="3000" min="2400" max="4000" step="100">
+                                </div>
+                                <div class="form-group">
+                                    <label>Wysokość drzwi (mm)</label>
+                                    <input type="number" id="doorHeight" value="2130" min="1800" max="2500" step="10">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Szerokość korytarzy (mm)</label>
+                                <input type="number" id="corridorWidth" value="1400" min="1200" max="2000" step="100">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Efficiency Optimization -->
+                    <div class="card efficiency-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-pie"></i> Optymalizacja Wydajności</h3>
+                        </div>
+                        <div class="card-body">
+                            <p class="efficiency-intro">Średnia realna wydajność w obiektach self-storage to ok. <strong>70%</strong>. Reszta powierzchni to korytarze, przestrzeń gospodarcza, wejścia i drogi pożarowe.</p>
+                            <div class="form-group">
+                                <label>Wydajność realna (docelowa) <span class="unit-hint">%</span></label>
+                                <div class="efficiency-input-row">
+                                    <input type="range" id="targetEfficiency" min="55" max="85" value="70" class="slider">
+                                    <input type="number" id="targetEfficiencyNumber" value="70" min="55" max="85" class="efficiency-number">
+                                    <span class="efficiency-unit">%</span>
+                                </div>
+                                <p class="input-hint">Powierzchnia na boksy = brutto × wydajność realna. Pozostałe (100% − docelowa) to korytarze i przestrzeń gospodarcza.</p>
+                            </div>
+                            <div class="efficiency-summary" id="efficiencySummary" style="display:none;">
+                                <div class="efficiency-row">
+                                    <span class="efficiency-label">Wydajność osiągnięta:</span>
+                                    <span class="efficiency-value" id="effAchieved">—</span>
+                                </div>
+                                <div class="efficiency-row">
+                                    <span class="efficiency-label">Wydajność maksymalna (teoretyczna):</span>
+                                    <span class="efficiency-value" id="effMax">—</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Box Distribution -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-th"></i> Podział Boksów</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="box-category">
+                                <div class="category-header">
+                                    <span class="category-badge small">S</span>
+                                    <span>Małe (1-3 m²)</span>
+                                </div>
+                                <div class="slider-container">
+                                    <input type="range" id="smallPercent" min="0" max="100" value="50" class="slider">
+                                    <span class="slider-value" id="smallPercentValue">50%</span>
+                                </div>
+                            </div>
+                            <div class="box-category">
+                                <div class="category-header">
+                                    <span class="category-badge medium">M</span>
+                                    <span>Średnie (4-7 m²)</span>
+                                </div>
+                                <div class="slider-container">
+                                    <input type="range" id="mediumPercent" min="0" max="100" value="30" class="slider">
+                                    <span class="slider-value" id="mediumPercentValue">30%</span>
+                                </div>
+                            </div>
+                            <div class="box-category">
+                                <div class="category-header">
+                                    <span class="category-badge large">L</span>
+                                    <span>Duże (8-15 m²)</span>
+                                </div>
+                                <div class="slider-container">
+                                    <input type="range" id="largePercent" min="0" max="100" value="20" class="slider">
+                                    <span class="slider-value" id="largePercentValue">20%</span>
+                                </div>
+                            </div>
+                            <div class="total-bar">
+                                <div class="total-progress">
+                                    <div class="progress-small" id="progressSmall" style="width:50%"></div>
+                                    <div class="progress-medium" id="progressMedium" style="width:30%"></div>
+                                    <div class="progress-large" id="progressLarge" style="width:20%"></div>
+                                </div>
+                                <span id="totalPercent">100% <i class="fas fa-check-circle" style="color:#28a745"></i></span>
+                            </div>
+                            <p class="validation-hint">Suma musi wynosić dokładnie 100% aby wygenerować plan</p>
+                        </div>
+                    </div>
+
+                    <!-- Additional Options -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-plus-circle"></i> Opcje Dodatkowe</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="option-row">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="hasMesh" checked>
+                                    <span class="toggle-switch"></span>
+                                    <span>Siatka zabezpieczająca</span>
+                                </label>
+                            </div>
+                            <div class="option-row">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="hasSoffit">
+                                    <span class="toggle-switch"></span>
+                                    <span>Lekki sufit (soffit)</span>
+                                </label>
+                            </div>
+                            <div class="option-row">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="hasElectroLocks" checked>
+                                    <span class="toggle-switch"></span>
+                                    <span>Zamki elektroniczne</span>
+                                </label>
+                            </div>
+                            <div class="option-row">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="hasRollerDoors">
+                                    <span class="toggle-switch"></span>
+                                    <span>Rolety w dużych boksach</span>
+                                </label>
+                            </div>
+                            <div class="option-row">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="needsGate">
+                                    <span class="toggle-switch"></span>
+                                    <span>Brama wjazdowa</span>
+                                </label>
+                            </div>
+                            <div class="option-row">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="hasCameras" checked>
+                                    <span class="toggle-switch"></span>
+                                    <span>System kamer</span>
+                                </label>
+                            </div>
+                            <div class="option-row">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="hasLighting" checked>
+                                    <span class="toggle-switch"></span>
+                                    <span>Oświetlenie LED</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-bar">
+                    <button class="btn btn-primary btn-large" id="generatePlan">
+                        <i class="fas fa-magic"></i> Generuj Plan
+                    </button>
+                </div>
+            </section>
+
+            <!-- Tab 2: Floor Plan -->
+            <section class="tab-content" id="tab-plan">
+                <div class="plan-container">
+                    <div class="plan-header">
+                        <h2><i class="fas fa-drafting-compass"></i> Rzut Techniczny</h2>
+                        <div class="plan-legend">
+                            <div class="legend-item">
+                                <span class="legend-color" style="background:#1a1a2e;"></span>
+                                <span>Ściany zewnętrzne</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background:#0066cc;"></span>
+                                <span>Ściany frontowe (białe)</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background:#ff8c00;"></span>
+                                <span>Ścianki działowe (szare)</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background:#28a745;"></span>
+                                <span>Korytarze</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="svg-container" id="svgContainer">
+                        <div class="placeholder">
+                            <i class="fas fa-drafting-compass"></i>
+                            <p>Kliknij "Generuj Plan" aby utworzyć rzut</p>
+                        </div>
+                    </div>
+                    <div class="plan-stats" id="planStats" style="display:none;">
+                        <div class="stat-card">
+                            <span class="stat-value" id="statTotalBoxes">0</span>
+                            <span class="stat-label">Liczba boksów</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value" id="statNetArea">0</span>
+                            <span class="stat-label">Pow. netto (m²)</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value" id="statEfficiency">0%</span>
+                            <span class="stat-label">Wydajność</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value" id="statAvgBox">0</span>
+                            <span class="stat-label">Śr. rozmiar boksu</span>
+                        </div>
+                        <div class="stat-card stat-small">
+                            <span class="stat-value" id="statSmallCount">0</span>
+                            <span class="stat-label">Małe (1-3m²)</span>
+                        </div>
+                        <div class="stat-card stat-medium">
+                            <span class="stat-value" id="statMediumCount">0</span>
+                            <span class="stat-label">Średnie (4-7m²)</span>
+                        </div>
+                        <div class="stat-card stat-large">
+                            <span class="stat-value" id="statLargeCount">0</span>
+                            <span class="stat-label">Duże (8-15m²)</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 3: Verification / Manual Input -->
+            <section class="tab-content" id="tab-verify">
+                <div class="verify-container">
+                    <div class="verify-header">
+                        <h2><i class="fas fa-edit"></i> Weryfikacja i Ręczne Wprowadzanie</h2>
+                        <p class="verify-description">Wprowadź rzeczywiste wartości z planów lub zmodyfikuj obliczone automatycznie</p>
+                    </div>
+                    
+                    <div class="verify-grid">
+                        <!-- Mode Selection -->
+                        <div class="card verify-mode-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-exchange-alt"></i> Tryb Obliczania</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="mode-toggle">
+                                    <label class="mode-option">
+                                        <input type="radio" name="calcMode" value="auto" id="modeAuto" checked>
+                                        <span class="mode-label">
+                                            <i class="fas fa-magic"></i>
+                                            <strong>Automatyczny</strong>
+                                            <small>Obliczenia na podstawie konfiguracji</small>
+                                        </span>
+                                    </label>
+                                    <label class="mode-option">
+                                        <input type="radio" name="calcMode" value="manual" id="modeManual">
+                                        <span class="mode-label">
+                                            <i class="fas fa-pencil-alt"></i>
+                                            <strong>Ręczny</strong>
+                                            <small>Wprowadź własne wartości</small>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PDF Upload -->
+                        <div class="card verify-upload-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-file-pdf"></i> Wczytaj z Planu PDF</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="upload-area" id="pdfUploadArea">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Przeciągnij plik PDF lub kliknij</p>
+                                    <input type="file" id="pdfFileInput" accept=".pdf,image/*" multiple style="display:none;">
+                                    <button class="btn btn-secondary" id="selectPdfBtn">
+                                        <i class="fas fa-folder-open"></i> Wybierz plik
+                                    </button>
+                                </div>
+                                <div class="upload-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>AI przeanalizuje plan i wyciągnie dane o ścianach i drzwiach</span>
+                                </div>
+                                <div id="uploadStatus" class="upload-status" style="display:none;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Manual Wall Inputs -->
+                        <div class="card verify-walls-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-border-all"></i> Powierzchnia Ścian</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="verify-input-group">
+                                    <div class="verify-input-row">
+                                        <label>
+                                            <span class="input-icon" style="background:#0066cc;"></span>
+                                            Ściany frontowe (białe)
+                                        </label>
+                                        <div class="verify-input-wrapper">
+                                            <input type="number" id="manualWhiteWall" placeholder="Auto" step="0.1">
+                                            <span class="unit">m²</span>
+                                            <span class="auto-value" id="autoWhiteWall">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="verify-input-row">
+                                        <label>
+                                            <span class="input-icon" style="background:#ff8c00;"></span>
+                                            Ścianki działowe (szare)
+                                        </label>
+                                        <div class="verify-input-wrapper">
+                                            <input type="number" id="manualGrayWall" placeholder="Auto" step="0.1">
+                                            <span class="unit">m²</span>
+                                            <span class="auto-value" id="autoGrayWall">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="verify-input-row">
+                                        <label>
+                                            <span class="input-icon" style="background:#28a745;"></span>
+                                            Siatka zabezpieczająca
+                                        </label>
+                                        <div class="verify-input-wrapper">
+                                            <input type="number" id="manualMesh" placeholder="Auto" step="0.1">
+                                            <span class="unit">m²</span>
+                                            <span class="auto-value" id="autoMesh">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="verify-input-row">
+                                        <label>
+                                            <span class="input-icon" style="background:#6c757d;"></span>
+                                            Kick Plate (odbojnica)
+                                        </label>
+                                        <div class="verify-input-wrapper">
+                                            <input type="number" id="manualKickPlate" placeholder="Auto" step="0.1">
+                                            <span class="unit">mb</span>
+                                            <span class="auto-value" id="autoKickPlate">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Manual Door Inputs -->
+                        <div class="card verify-doors-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-door-open"></i> Drzwi i Akcesoria</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="verify-input-group">
+                                    <div class="verify-input-row">
+                                        <label>Drzwi pojedyncze (1m)</label>
+                                        <div class="verify-input-wrapper">
+                                            <input type="number" id="manualSingleDoors" placeholder="Auto" min="0">
+                                            <span class="unit">szt</span>
+                                            <span class="auto-value" id="autoSingleDoors">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="verify-input-row">
+                                        <label>Drzwi podwójne (2m)</label>
+                                        <div class="verify-input-wrapper">
+                                            <input type="number" id="manualDoubleDoors" placeholder="Auto" min="0">
+                                            <span class="unit">szt</span>
+                                            <span class="auto-value" id="autoDoubleDoors">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="verify-input-row">
+                                        <label>Rolety (1.5m)</label>
+                                        <div class="verify-input-wrapper">
+                                            <input type="number" id="manualRollers15" placeholder="Auto" min="0">
+                                            <span class="unit">szt</span>
+                                            <span class="auto-value" id="autoRollers15">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="verify-input-row">
+                                        <label>Rolety (2m)</label>
+                                        <div class="verify-input-wrapper">
+                                            <input type="number" id="manualRollers20" placeholder="Auto" min="0">
+                                            <span class="unit">szt</span>
+                                            <span class="auto-value" id="autoRollers20">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="verify-input-row">
+                                        <label>Zamki elektroniczne</label>
+                                        <div class="verify-input-wrapper">
+                                            <input type="number" id="manualElectroLocks" placeholder="Auto" min="0">
+                                            <span class="unit">szt</span>
+                                            <span class="auto-value" id="autoElectroLocks">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Box Configuration Override -->
+                        <div class="card verify-boxes-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-th"></i> Konfiguracja Boksów</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="verify-input-group">
+                                    <div class="verify-input-row">
+                                        <label>Liczba boksów ogółem</label>
+                                        <div class="verify-input-wrapper">
+                                            <input type="number" id="manualTotalBoxes" placeholder="Auto" min="0">
+                                            <span class="unit">szt</span>
+                                            <span class="auto-value" id="autoTotalBoxes">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="verify-input-row">
+                                        <label>Powierzchnia netto boksów</label>
+                                        <div class="verify-input-wrapper">
+                                            <input type="number" id="manualNetArea" placeholder="Auto" step="0.1">
+                                            <span class="unit">m²</span>
+                                            <span class="auto-value" id="autoNetArea">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="verify-input-row">
+                                        <label>Powierzchnia korytarzy</label>
+                                        <div class="verify-input-wrapper">
+                                            <input type="number" id="manualCorridorArea" placeholder="Auto" step="0.1">
+                                            <span class="unit">m²</span>
+                                            <span class="auto-value" id="autoCorridorArea">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Comparison Summary -->
+                        <div class="card verify-comparison-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-balance-scale"></i> Porównanie: Automatyczne vs Ręczne</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="comparisonTable" class="comparison-placeholder">
+                                    <i class="fas fa-sync-alt"></i>
+                                    <p>Wygeneruj plan, aby zobaczyć porównanie</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-bar">
+                        <button class="btn btn-secondary" id="copyAutoValues">
+                            <i class="fas fa-copy"></i> Kopiuj wartości automatyczne
+                        </button>
+                        <button class="btn btn-primary" id="recalculateWithManual">
+                            <i class="fas fa-calculator"></i> Przelicz z wartościami ręcznymi
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 4: Costs -->
+            <section class="tab-content" id="tab-costs">
+                <div class="costs-grid">
+                    <!-- Pricing Config -->
+                    <div class="card pricing-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-tags"></i> Cennik Materiałów</h3>
+                            <button class="btn-icon" id="resetPrices" title="Przywróć domyślne">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="price-group">
+                                <h4>Ściany</h4>
+                                <div class="price-row">
+                                    <label>Ściana frontowa (biała)</label>
+                                    <div class="price-input">
+                                        <input type="number" id="priceWhiteWall" value="110">
+                                        <span>PLN/m²</span>
+                                    </div>
+                                </div>
+                                <div class="price-row">
+                                    <label>Ściana działowa (szara)</label>
+                                    <div class="price-input">
+                                        <input type="number" id="priceGrayWall" value="84">
+                                        <span>PLN/m²</span>
+                                    </div>
+                                </div>
+                                <div class="price-row">
+                                    <label>Siatka zabezpieczająca</label>
+                                    <div class="price-input">
+                                        <input type="number" id="priceMesh" value="50">
+                                        <span>PLN/m²</span>
+                                    </div>
+                                </div>
+                                <div class="price-row">
+                                    <label>Kick Plate (odbojnica)</label>
+                                    <div class="price-input">
+                                        <input type="number" id="priceKickPlate" value="81">
+                                        <span>PLN/mb</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="price-group">
+                                <h4>Drzwi i Zamki</h4>
+                                <div class="price-row">
+                                    <label>Drzwi pojedyncze (1m)</label>
+                                    <div class="price-input">
+                                        <input type="number" id="priceDoorSingle" value="780">
+                                        <span>PLN/szt</span>
+                                    </div>
+                                </div>
+                                <div class="price-row">
+                                    <label>Drzwi podwójne (2m)</label>
+                                    <div class="price-input">
+                                        <input type="number" id="priceDoorDouble" value="1560">
+                                        <span>PLN/szt</span>
+                                    </div>
+                                </div>
+                                <div class="price-row">
+                                    <label>Roleta 1.5m</label>
+                                    <div class="price-input">
+                                        <input type="number" id="priceRoller15" value="1700">
+                                        <span>PLN/szt</span>
+                                    </div>
+                                </div>
+                                <div class="price-row">
+                                    <label>Roleta 2m</label>
+                                    <div class="price-input">
+                                        <input type="number" id="priceRoller20" value="1800">
+                                        <span>PLN/szt</span>
+                                    </div>
+                                </div>
+                                <div class="price-row">
+                                    <label>Zamek elektroniczny</label>
+                                    <div class="price-input">
+                                        <input type="number" id="priceElectroLock" value="550">
+                                        <span>PLN/szt</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="price-group">
+                                <h4>Inne</h4>
+                                <div class="price-row">
+                                    <label>Sufit (soffit)</label>
+                                    <div class="price-input">
+                                        <input type="number" id="priceSoffit" value="80">
+                                        <span>PLN/mb</span>
+                                    </div>
+                                </div>
+                                <div class="price-row">
+                                    <label>Brama wjazdowa</label>
+                                    <div class="price-input">
+                                        <input type="number" id="priceGate" value="15000">
+                                        <span>PLN</span>
+                                    </div>
+                                </div>
+                                <div class="price-row">
+                                    <label>Kamera</label>
+                                    <div class="price-input">
+                                        <input type="number" id="priceCamera" value="500">
+                                        <span>PLN/szt</span>
+                                    </div>
+                                </div>
+                                <div class="price-row">
+                                    <label>Lampa LED</label>
+                                    <div class="price-input">
+                                        <input type="number" id="priceLamp" value="350">
+                                        <span>PLN/szt</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cost Summary -->
+                    <div class="card cost-summary-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-receipt"></i> Zestawienie Kosztów</h3>
+                        </div>
+                        <div class="card-body" id="costSummary">
+                            <div class="cost-placeholder">
+                                <i class="fas fa-calculator"></i>
+                                <p>Wygeneruj plan aby zobaczyć zestawienie</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 4: Cash Flow -->
+            <section class="tab-content" id="tab-cashflow">
+                <div class="cashflow-grid">
+                    <!-- Cash Flow Parameters -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-sliders-h"></i> Parametry Finansowe</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Cena najmu</label>
+                                <div class="input-with-unit">
+                                    <input type="number" id="rentPrice" value="85" min="50" max="200">
+                                    <span>PLN/m²/msc</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Komercjalizacja miesięczna</label>
+                                <div class="input-with-unit">
+                                    <input type="number" id="monthlyRental" value="20" min="5" max="100">
+                                    <span>m²/msc</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Maksymalne obłożenie</label>
+                                <div class="input-with-unit">
+                                    <input type="number" id="maxOccupancy" value="85" min="50" max="100">
+                                    <span>%</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Długość kontraktu</label>
+                                <div class="input-with-unit">
+                                    <input type="number" id="contractLength" value="10" min="1" max="30">
+                                    <span>lat</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Opłata licencyjna</label>
+                                <div class="input-with-unit">
+                                    <input type="number" id="licenseFee" value="15" min="0" max="30">
+                                    <span>%</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Koszty stałe (media, etc.)</label>
+                                <div class="input-with-unit">
+                                    <input type="number" id="fixedCosts" value="5000" min="0" max="50000">
+                                    <span>PLN/msc</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" id="calculateCashflow">
+                                <i class="fas fa-calculator"></i> Przelicz
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Cash Flow Results -->
+                    <div class="card cashflow-results">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-pie"></i> Analiza Finansowa</h3>
+                        </div>
+                        <div class="card-body" id="cashflowResults">
+                            <div class="cost-placeholder">
+                                <i class="fas fa-chart-line"></i>
+                                <p>Wygeneruj plan i kliknij "Przelicz"</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cash Flow Chart -->
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-area"></i> Wykres Cash Flow</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="cashflowChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 5: Summary -->
+            <section class="tab-content" id="tab-summary">
+                <div class="summary-container" id="summaryContent">
+                    <div class="cost-placeholder">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <p>Wygeneruj plan aby zobaczyć podsumowanie</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <span>Self-Storage Konfigurator Pro &copy; 2025</span>
+            <span>|</span>
+            <span>Wersja 1.0</span>
+        </footer>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-cog"></i> Ustawienia API</h3>
+                <button class="modal-close" id="closeSettings">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Klucz API OpenAI</label>
+                    <div class="api-key-input">
+                        <input type="password" id="apiKeyInput" placeholder="sk-proj-...">
+                        <button class="btn-icon" id="toggleApiKey" title="Pokaż/ukryj">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <p class="input-hint">Klucz jest przechowywany lokalnie w przeglądarce</p>
+                </div>
+                <div class="api-status" id="apiStatus">
+                    <i class="fas fa-circle"></i>
+                    <span>Brak klucza API</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="clearApiKey">Usuń klucz</button>
+                <button class="btn btn-primary" id="saveApiKey">Zapisz</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print-specific content -->
+    <div class="print-only" id="printContent"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
